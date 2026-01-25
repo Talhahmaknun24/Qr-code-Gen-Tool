@@ -6,7 +6,8 @@
     <title>Islamic QR Studio Ultimate | Talhah Maknun</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Noto+Sans+Bengali:wght@400;600&family=Reem+Kufi:wght@400;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/easyqrcodejs@4.5.0/dist/easy.qrcode.min.js"></script>
+    
+    <script type="text/javascript" src="https://unpkg.com/qr-code-styling@1.5.0/lib/qr-code-styling.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     
     <style>
@@ -16,7 +17,7 @@
             --gold: #d4af37;
             --gold-light: #f3e5ab;
             --cream: #fdfbf7;
-            --warning: #b45309; /* Deep Orange for warning */
+            --warning: #b45309;
         }
 
         body {
@@ -115,15 +116,14 @@
             width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px;
             font-family: inherit; transition: 0.3s; box-sizing: border-box;
         }
-        input:focus { border-color: var(--emerald); outline: none; box-shadow: 0 0 0 3px rgba(6, 78, 59, 0.1); }
+        input:focus, select:focus { border-color: var(--emerald); outline: none; box-shadow: 0 0 0 3px rgba(6, 78, 59, 0.1); }
 
-        /* --- Density Warning Style --- */
+        /* Density Warning */
         .density-alert {
             font-size: 0.85rem; color: var(--warning); margin-top: 5px;
             display: none; align-items: center; gap: 5px; background: #fffbeb;
             padding: 8px; border-radius: 5px; border-left: 3px solid var(--warning);
         }
-        .density-alert i { font-size: 1rem; }
 
         .color-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
         .color-wrapper {
@@ -132,7 +132,7 @@
         }
         input[type="color"] { border: none; width: 30px; height: 30px; padding: 0; background: none; cursor: pointer; }
 
-        /* Generate & Download Buttons */
+        /* Generate & Download */
         .btn-generate {
             width: 100%; padding: 15px; background: var(--emerald); color: white; border: none;
             border-radius: 10px; font-size: 1.1rem; cursor: pointer; margin-top: 10px;
@@ -154,14 +154,15 @@
         #qrcode-container {
             margin: 20px 0; padding: 20px; border: 2px solid var(--gold);
             border-radius: 15px; background: white; position: relative;
+            display: flex; justify-content: center; align-items: center;
+            min-height: 300px;
         }
-        .qr-corner { position: absolute; width: 15px; height: 15px; border: 3px solid var(--emerald); }
-        .qc-tl { top: -2px; left: -2px; border-right: none; border-bottom: none; }
-        .qc-tr { top: -2px; right: -2px; border-left: none; border-bottom: none; }
-        .qc-bl { bottom: -2px; left: -2px; border-right: none; border-top: none; }
-        .qc-br { bottom: -2px; right: -2px; border-left: none; border-top: none; }
-
-        #hidden-svg-box { position: absolute; top: -9999px; left: -9999px; }
+        /* Corners decoration */
+        .qr-corner { position: absolute; width: 20px; height: 20px; border: 3px solid var(--emerald); pointer-events: none; z-index: 10; }
+        .qc-tl { top: -2px; left: -2px; border-right: none; border-bottom: none; border-radius: 10px 0 0 0; }
+        .qc-tr { top: -2px; right: -2px; border-left: none; border-bottom: none; border-radius: 0 10px 0 0; }
+        .qc-bl { bottom: -2px; left: -2px; border-right: none; border-top: none; border-radius: 0 0 0 10px; }
+        .qc-br { bottom: -2px; right: -2px; border-left: none; border-top: none; border-radius: 0 0 10px 0; }
 
         footer {
             margin-top: auto; padding: 20px; text-align: center; width: 100%;
@@ -182,7 +183,7 @@
     <div class="header">
         <div class="bismillah">بِسْمِ ٱللَّٰهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>
         <h1>Islamic QR Studio</h1>
-        <p style="opacity: 0.8; font-size: 0.9rem;">আলটিমেট এডভান্সড জেনারেটর</p>
+        <p style="opacity: 0.8; font-size: 0.9rem;">শেপ কন্ট্রোল সহ আলটিমেট জেনারেটর</p>
     </div>
 
     <div class="main-container">
@@ -191,18 +192,10 @@
             
             <div class="section-head"><i class="fa-solid fa-star"></i> কুইক টেমপ্লেট</div>
             <div class="template-grid">
-                <button class="tmpl-btn" onclick="applyTemplate('masjid')">
-                    <i class="fa-solid fa-mosque"></i> মসজিদ দান
-                </button>
-                <button class="tmpl-btn" onclick="applyTemplate('eid')">
-                    <i class="fa-solid fa-moon"></i> ঈদের শুভেচ্ছা
-                </button>
-                <button class="tmpl-btn" onclick="applyTemplate('wifi')">
-                    <i class="fa-solid fa-wifi"></i> ওয়াইফাই
-                </button>
-                <button class="tmpl-btn" onclick="applyTemplate('contact')">
-                    <i class="fa-solid fa-user-tie"></i> প্রোফাইল
-                </button>
+                <button class="tmpl-btn" onclick="applyTemplate('masjid')"><i class="fa-solid fa-mosque"></i> মসজিদ</button>
+                <button class="tmpl-btn" onclick="applyTemplate('eid')"><i class="fa-solid fa-moon"></i> ঈদ</button>
+                <button class="tmpl-btn" onclick="applyTemplate('wifi')"><i class="fa-solid fa-wifi"></i> ওয়াইফাই</button>
+                <button class="tmpl-btn" onclick="applyTemplate('contact')"><i class="fa-solid fa-user-tie"></i> প্রোফাইল</button>
             </div>
 
             <div class="section-head"><i class="fa-solid fa-pen-fancy"></i> তথ্য প্রদান করুন</div>
@@ -210,16 +203,48 @@
             <div class="input-group">
                 <label>আপনার টেক্সট / লিঙ্ক</label>
                 <input type="text" id="text-input" value="https://talhahmaknun.com" placeholder="এখানে লিখুন..." oninput="checkDensity()">
-                
                 <div id="density-warning" class="density-alert">
                     <i class="fa-solid fa-triangle-exclamation"></i>
-                    <span>সতর্কতা: বেশি লেখা দিলে কোডের ঘনত্ব বাড়বে এবং স্ক্যান করা কঠিন হতে পারে।</span>
+                    <span>সতর্কতা: বেশি লেখা কোডের ঘনত্ব বাড়াবে।</span>
                 </div>
             </div>
 
             <div class="input-group">
                 <label>লোগো আপলোড</label>
                 <input type="file" id="logo-input" accept="image/*">
+            </div>
+
+            <div class="section-head"><i class="fa-solid fa-shapes"></i> স্টাইল এবং শেপ</div>
+            <div class="color-grid">
+                <div>
+                    <label>বডি স্টাইল</label>
+                    <select id="dots-style" onchange="generatePreview()">
+                        <option value="square">স্কয়ার (Square)</option>
+                        <option value="dots">বিন্দু (Dots)</option>
+                        <option value="rounded">রাউন্ডেড (Rounded)</option>
+                        <option value="classy">ক্লাসি (Classy)</option>
+                        <option value="classy-rounded">ক্লাসি রাউন্ড</option>
+                    </select>
+                </div>
+                <div>
+                    <label>কর্নার ফ্রেম (Outer)</label>
+                    <select id="corner-square-style" onchange="generatePreview()">
+                        <option value="square">স্কয়ার</option>
+                        <option value="dot">ডট (বৃত্তাকার)</option>
+                        <option value="extra-rounded" selected>এক্সট্রা রাউন্ড</option>
+                    </select>
+                </div>
+                <div>
+                    <label>কর্নার বিন্দু (Inner)</label>
+                    <select id="corner-dot-style" onchange="generatePreview()">
+                        <option value="square">স্কয়ার</option>
+                        <option value="dot" selected>ডট (বৃত্তাকার)</option>
+                    </select>
+                </div>
+                <div>
+                    <label>সাইজ</label>
+                    <input type="number" id="qr-size" value="300" min="200" max="1000">
+                </div>
             </div>
 
             <div class="section-head"><i class="fa-solid fa-brush"></i> কালার স্টুডিও</div>
@@ -234,27 +259,12 @@
                     <div class="color-wrapper"><input type="color" id="color-light" value="#ffffff"></div>
                 </div>
                 <div>
-                    <label>চোখের ফ্রেম (Outer)</label>
+                    <label>কর্নার ফ্রেম রং</label>
                     <div class="color-wrapper"><input type="color" id="color-eye-outer" value="#d4af37"></div>
                 </div>
                 <div>
-                    <label>চোখের বিন্দু (Inner)</label>
+                    <label>কর্নার বিন্দু রং</label>
                     <div class="color-wrapper"><input type="color" id="color-eye-inner" value="#064e3b"></div>
-                </div>
-            </div>
-
-            <div class="section-head"><i class="fa-solid fa-gear"></i> সেটিংস</div>
-            <div class="color-grid">
-                <div>
-                    <label>সাইজ (px)</label>
-                    <input type="number" id="qr-size" value="400" min="200" max="2000">
-                </div>
-                <div>
-                    <label>ECC লেভেল</label>
-                    <select id="qr-ecc">
-                        <option value="M">Medium</option>
-                        <option value="H" selected>High (Best)</option>
-                    </select>
                 </div>
             </div>
 
@@ -272,38 +282,42 @@
             </div>
 
             <div class="download-group">
-                <button class="btn-dl primary" onclick="download('png')"><i class="fa-solid fa-image"></i> PNG (HD)</button>
-                <button class="btn-dl" onclick="download('jpg')"><i class="fa-regular fa-image"></i> JPG</button>
-                <button class="btn-dl" onclick="download('svg')"><i class="fa-solid fa-bezier-curve"></i> SVG</button>
-                <button class="btn-dl" onclick="download('pdf')"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+                <button class="btn-dl primary" onclick="downloadQR('png')"><i class="fa-solid fa-image"></i> PNG Download</button>
+                <button class="btn-dl" onclick="downloadQR('jpeg')"><i class="fa-regular fa-image"></i> JPG Download</button>
+                <button class="btn-dl" onclick="downloadQR('svg')"><i class="fa-solid fa-bezier-curve"></i> SVG Download</button>
+                <button class="btn-dl" onclick="downloadPdf()"><i class="fa-solid fa-file-pdf"></i> PDF Download</button>
             </div>
         </div>
     </div>
 
-    <div id="hidden-svg-box"></div>
-
     <footer>
         <div>&copy; 2026 সমস্ত অধিকার সংরক্ষিত।</div>
         <div>Developed with <i class="fa-solid fa-heart" style="color: var(--gold);"></i> by <span class="dev-tag">TALHAH MAKNUN</span></div>
-        <div style="font-size: 0.8rem; margin-top: 5px; opacity: 0.6;">md.talhahmaknun24@gmail.com | Graphics Designer, Cybersecurity & Dev Specialist</div>
+        <div style="font-size: 0.8rem; margin-top: 5px; opacity: 0.6;">md.talhahmaknun24@gmail.com  | Graphics Designer, Cybersecurity & Dev Specialist</div>
     </footer>
 
     <script>
-        let qrcodeObj = null;
+        let qrCode;
         let logoData = null;
 
-        // Density Check Function (New Feature)
-        function checkDensity() {
-            const text = document.getElementById('text-input').value;
-            const warningBox = document.getElementById('density-warning');
+        // Initialize
+        window.onload = function() {
+            qrCode = new QRCodeStyling({
+                width: 300,
+                height: 300,
+                type: "svg",
+                data: "https://talhahmaknun.com",
+                image: "",
+                dotsOptions: { color: "#064e3b", type: "rounded" },
+                backgroundOptions: { color: "#ffffff" },
+                imageOptions: { crossOrigin: "anonymous", margin: 10 }
+            });
             
-            // Show warning if text length > 50 characters
-            if (text.length > 50) {
-                warningBox.style.display = 'flex';
-            } else {
-                warningBox.style.display = 'none';
-            }
-        }
+            // Initial generation
+            qrCode.append(document.getElementById("qrcode-container"));
+            checkDensity();
+            generatePreview();
+        };
 
         // Logo Handler
         document.getElementById('logo-input').addEventListener('change', function(e) {
@@ -317,130 +331,116 @@
             reader.readAsDataURL(file);
         });
 
-        // Template Logic
+        function checkDensity() {
+            const text = document.getElementById('text-input').value;
+            const warningBox = document.getElementById('density-warning');
+            if (text.length > 60) {
+                warningBox.style.display = 'flex';
+            } else {
+                warningBox.style.display = 'none';
+            }
+        }
+
         function applyTemplate(type) {
             const input = document.getElementById('text-input');
             const cDark = document.getElementById('color-dark');
-            const cLight = document.getElementById('color-light');
             const cOuter = document.getElementById('color-eye-outer');
             const cInner = document.getElementById('color-eye-inner');
+            const cBodyStyle = document.getElementById('dots-style');
+            const cCornerStyle = document.getElementById('corner-square-style');
 
             if (type === 'masjid') {
-                input.value = "বিকাশ: 01XXXXXXXXX | নগদ: 01XXXXXXXXX (মসজিদ ফান্ড)";
-                cDark.value = "#064e3b"; // Emerald
-                cLight.value = "#ffffff";
-                cOuter.value = "#d4af37"; // Gold
-                cInner.value = "#064e3b";
+                input.value = "বিকাশ: 01XXXXXXXXX (মসজিদ ফান্ড)";
+                cDark.value = "#064e3b"; cOuter.value = "#d4af37"; cInner.value = "#064e3b";
+                cCornerStyle.value = "extra-rounded";
             } else if (type === 'eid') {
-                input.value = "ঈদ মোবারক! তাকাব্বালাল্লাহু মিন্না ওয়া মিনকুম।";
-                cDark.value = "#7f1d1d"; // Maroon
-                cLight.value = "#fff5f5";
-                cOuter.value = "#d4af37"; // Gold
-                cInner.value = "#7f1d1d";
+                input.value = "ঈদ মোবারক!";
+                cDark.value = "#7f1d1d"; cOuter.value = "#d4af37"; cInner.value = "#7f1d1d";
+                cCornerStyle.value = "dot";
             } else if (type === 'wifi') {
-                input.value = "WIFI:S:MyNetworkName;T:WPA;P:Password;;";
-                cDark.value = "#1e3a8a"; // Blue
-                cLight.value = "#ffffff";
-                cOuter.value = "#1e3a8a";
-                cInner.value = "#1e40af";
-                alert('ওয়াইফাই নাম (S) এবং পাসওয়ার্ড (P) এডিট করে নিন।');
+                input.value = "WIFI:S:MyNetwork;T:WPA;P:12345678;;";
+                cDark.value = "#1e3a8a"; cOuter.value = "#1e3a8a"; cInner.value = "#1e40af";
+                cCornerStyle.value = "square";
             } else if (type === 'contact') {
-                input.value = "MECARD:N:Talhah Maknun;TEL:01XXXXXXXXX;EMAIL:md.talhahmaknun@gmail.com;;";
-                cDark.value = "#111827"; // Black
-                cLight.value = "#ffffff";
-                cOuter.value = "#d4af37"; // Gold
-                cInner.value = "#111827";
+                input.value = "MECARD:N:Talhah Maknun;TEL:01XXXXXXXXX;;";
+                cDark.value = "#111827"; cOuter.value = "#000000"; cInner.value = "#111827";
+                cCornerStyle.value = "extra-rounded";
             }
-            // Trigger check manually after setting template
-            checkDensity();
             generatePreview();
-        }
-
-        // Configuration
-        function getOptions(drawerType) {
-            const text = document.getElementById('text-input').value;
-            const size = parseInt(document.getElementById('qr-size').value);
-            const ecc = document.getElementById('qr-ecc').value;
-
-            return {
-                text: text,
-                width: size, height: size,
-                colorDark: document.getElementById('color-dark').value,
-                colorLight: document.getElementById('color-light').value,
-                correctLevel: QRCode.CorrectLevel[ecc],
-                drawer: drawerType,
-                // Advanced Colors
-                PO: document.getElementById('color-eye-outer').value, 
-                PI: document.getElementById('color-eye-inner').value,
-                // Logo
-                logo: logoData,
-                logoWidth: size * 0.22, logoHeight: size * 0.22,
-                logoBackgroundColor: document.getElementById('color-light').value,
-                logoBackgroundTransparent: false,
-                quietZone: 15, quietZoneColor: "rgba(0,0,0,0)"
-            };
         }
 
         function generatePreview() {
-            const container = document.getElementById('qrcode-container');
-            // Keep existing corners, remove canvas/img
-            Array.from(container.children).forEach(child => {
-                if(!child.classList.contains('qr-corner')) container.removeChild(child);
+            const text = document.getElementById('text-input').value || "Talhah Maknun";
+            const size = parseInt(document.getElementById('qr-size').value);
+            
+            // Styles
+            const dotStyle = document.getElementById('dots-style').value;
+            const cornerSquareStyle = document.getElementById('corner-square-style').value;
+            const cornerDotStyle = document.getElementById('corner-dot-style').value;
+
+            // Colors
+            const colorDark = document.getElementById('color-dark').value;
+            const colorLight = document.getElementById('color-light').value;
+            const colorOuter = document.getElementById('color-eye-outer').value;
+            const colorInner = document.getElementById('color-eye-inner').value;
+
+            qrCode.update({
+                width: size,
+                height: size,
+                data: text,
+                image: logoData,
+                dotsOptions: {
+                    color: colorDark,
+                    type: dotStyle
+                },
+                backgroundOptions: {
+                    color: colorLight,
+                },
+                cornersSquareOptions: {
+                    color: colorOuter,
+                    type: cornerSquareStyle
+                },
+                cornersDotOptions: {
+                    color: colorInner,
+                    type: cornerDotStyle
+                }
             });
-            qrcodeObj = new QRCode(container, getOptions('canvas'));
         }
 
-        function download(type) {
-            const text = document.getElementById('text-input').value;
-            if(!text) { alert("টেক্সট দিন!"); return; }
+        function downloadQR(format) {
             const fileName = "islamic_qr_" + Date.now();
+            qrCode.download({ name: fileName, extension: format });
+        }
 
-            if (type === 'png' || type === 'jpg') {
-                const canvas = document.querySelector('#qrcode-container canvas');
-                if(canvas) {
-                    const link = document.createElement('a');
-                    link.download = `${fileName}.${type}`;
-                    link.href = canvas.toDataURL(`image/${type === 'png' ? 'png' : 'jpeg'}`, 1.0);
-                    link.click();
-                }
-            } else if (type === 'svg') {
-                const hiddenBox = document.getElementById('hidden-svg-box');
-                hiddenBox.innerHTML = '';
-                new QRCode(hiddenBox, getOptions('svg'));
-                setTimeout(() => {
-                    const svg = hiddenBox.querySelector('svg');
-                    if(svg) {
-                        const s = new XMLSerializer().serializeToString(svg);
-                        const blob = new Blob([s], {type: "image/svg+xml;charset=utf-8"});
-                        const link = document.createElement('a');
-                        link.href = URL.createObjectURL(blob);
-                        link.download = `${fileName}.svg`;
-                        link.click();
-                    }
-                }, 100);
-            } else if (type === 'pdf') {
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF();
-                const canvas = document.querySelector('#qrcode-container canvas');
-                if(canvas) {
-                    const imgData = canvas.toDataURL('image/png');
+        function downloadPdf() {
+            // Get the raw canvas data from the library logic manually or convert SVG
+            // For simplicity, we trigger a download of PNG then stick it in PDF using jsPDF
+            qrCode.getRawData("png").then((buffer) => {
+                const blob = new Blob([buffer], { type: "image/png" });
+                const url = URL.createObjectURL(blob);
+                
+                const img = new Image();
+                img.src = url;
+                img.onload = function() {
+                    const { jsPDF } = window.jspdf;
+                    const doc = new jsPDF();
+                    
                     doc.setFont("helvetica", "bold"); doc.setFontSize(22); doc.setTextColor(6, 78, 59);
                     doc.text("Islamic QR Code", 105, 20, null, null, "center");
+                    
                     doc.setFontSize(10); doc.setTextColor(100);
-                    doc.text("Designed by Talhah Maknun", 105, 28, null, null, "center");
-                    doc.addImage(imgData, 'PNG', 55, 40, 100, 100);
+                    doc.text("Generated by Talhah Maknun Studio", 105, 28, null, null, "center");
+                    
+                    doc.addImage(img, 'PNG', 55, 40, 100, 100);
+                    
+                    const text = document.getElementById('text-input').value;
                     doc.setFontSize(12); doc.setTextColor(0);
-                    doc.text(`Content: ${text.substring(0,40)}...`, 105, 155, null, null, "center");
-                    doc.save(`${fileName}.pdf`);
+                    doc.text(`Content: ${text.substring(0,30)}...`, 105, 155, null, null, "center");
+                    
+                    doc.save("islamic_qr_code.pdf");
                 }
-            }
+            });
         }
-
-        // Initialize and check density
-        window.onload = function() {
-            checkDensity();
-            generatePreview();
-        };
     </script>
 </body>
 </html>
