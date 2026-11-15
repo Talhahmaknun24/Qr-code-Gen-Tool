@@ -1,446 +1,432 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Islamic QR Studio Ultimate | Talhah Maknun</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Noto+Sans+Bengali:wght@400;600&family=Reem+Kufi:wght@400;700&display=swap" rel="stylesheet">
-    
-    <script type="text/javascript" src="https://unpkg.com/qr-code-styling@1.5.0/lib/qr-code-styling.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    
-    <style>
-        :root {
-            --emerald: #064e3b;
-            --emerald-light: #10b981;
-            --gold: #d4af37;
-            --gold-light: #f3e5ab;
-            --cream: #fdfbf7;
-            --warning: #b45309;
-        }
-
-        body {
-            font-family: 'Noto Sans Bengali', sans-serif;
-            background-color: var(--cream);
-            background-image: 
-                radial-gradient(var(--gold) 0.5px, transparent 0.5px),
-                linear-gradient(to right, rgba(212, 175, 55, 0.05) 1px, transparent 1px);
-            background-size: 20px 20px, 40px 40px;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        /* --- Animations --- */
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-15px); }
-            100% { transform: translateY(0px); }
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Lanterns */
-        .lantern-container {
-            position: fixed; top: 0; width: 100%; display: flex;
-            justify-content: space-between; pointer-events: none; z-index: 10;
-            padding: 0 50px; box-sizing: border-box;
-        }
-        .lantern {
-            width: 60px; height: auto; animation: float 4s ease-in-out infinite;
-            filter: drop-shadow(0 10px 10px rgba(0,0,0,0.2));
-        }
-        .l-right { animation-delay: 2s; }
-
-        /* Header */
-        .header {
-            background: linear-gradient(180deg, var(--emerald) 0%, #022c22 100%);
-            width: 100%; padding: 30px 0 50px 0; text-align: center; color: var(--gold);
-            border-bottom: 5px solid var(--gold); position: relative;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
-        }
-        .bismillah { font-family: 'Amiri', serif; font-size: 1.8rem; margin-bottom: 10px; opacity: 0.9; }
-        .header h1 { font-family: 'Reem Kufi', sans-serif; margin: 0; font-size: 2.5rem; letter-spacing: 2px; }
-
-        /* Main Layout */
-        .main-container {
-            display: flex; flex-wrap: wrap; gap: 30px; padding: 40px;
-            max-width: 1200px; width: 95%; margin-top: -40px; z-index: 5;
-            animation: fadeIn 1s ease-out;
-        }
-
-        .panel {
-            background: white; border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-            border: 1px solid rgba(212, 175, 55, 0.3); padding: 30px;
-            position: relative; overflow: hidden;
-        }
-        .panel::before {
-            content: ""; position: absolute; top: 0; left: 0; right: 0; height: 5px;
-            background: linear-gradient(90deg, var(--emerald), var(--gold), var(--emerald));
-        }
-
-        .left-panel { flex: 1.5; }
-        .right-panel { flex: 1; display: flex; flex-direction: column; align-items: center; text-align: center; }
-
-        .section-head {
-            color: var(--emerald); font-size: 1.1rem; font-weight: bold;
-            margin: 20px 0 15px 0; border-bottom: 1px dashed var(--gold);
-            padding-bottom: 5px; display: flex; align-items: center; gap: 10px;
-        }
-        .section-head:first-child { margin-top: 0; }
-
-        /* Template Buttons */
-        .template-grid {
-            display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px;
-        }
-        .tmpl-btn {
-            background: #fff; border: 1px solid var(--emerald); color: var(--emerald);
-            padding: 10px; border-radius: 8px; cursor: pointer; transition: 0.3s;
-            display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600;
-        }
-        .tmpl-btn:hover { background: var(--emerald); color: white; }
-        .tmpl-btn i { color: var(--gold); }
-        .tmpl-btn:hover i { color: #fff; }
-
-        /* Inputs */
-        .input-group { margin-bottom: 15px; position: relative; }
-        label { display: block; font-size: 0.9rem; margin-bottom: 5px; color: #555; font-weight: 600; }
-        input, select {
-            width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px;
-            font-family: inherit; transition: 0.3s; box-sizing: border-box;
-        }
-        input:focus, select:focus { border-color: var(--emerald); outline: none; box-shadow: 0 0 0 3px rgba(6, 78, 59, 0.1); }
-
-        /* Density Warning */
-        .density-alert {
-            font-size: 0.85rem; color: var(--warning); margin-top: 5px;
-            display: none; align-items: center; gap: 5px; background: #fffbeb;
-            padding: 8px; border-radius: 5px; border-left: 3px solid var(--warning);
-        }
-
-        .color-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-        .color-wrapper {
-            display: flex; align-items: center; gap: 10px;
-            background: #f4f4f4; padding: 5px 10px; border-radius: 8px;
-        }
-        input[type="color"] { border: none; width: 30px; height: 30px; padding: 0; background: none; cursor: pointer; }
-
-        /* Generate & Download */
-        .btn-generate {
-            width: 100%; padding: 15px; background: var(--emerald); color: white; border: none;
-            border-radius: 10px; font-size: 1.1rem; cursor: pointer; margin-top: 10px;
-            transition: 0.3s; font-weight: bold; box-shadow: 0 5px 15px rgba(6, 78, 59, 0.3);
-        }
-        .btn-generate:hover { background: #042f24; transform: translateY(-2px); }
-
-        .download-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; margin-top: 20px; }
-        .btn-dl {
-            padding: 10px; border: 1px solid var(--gold); border-radius: 50px;
-            background: white; color: var(--emerald); cursor: pointer; font-weight: 600;
-            display: flex; align-items: center; justify-content: center; gap: 5px;
-            transition: 0.3s; text-decoration: none; font-size: 0.9rem;
-        }
-        .btn-dl:hover { background: var(--gold); color: white; }
-        .btn-dl.primary { background: var(--gold); color: #222; border: none; grid-column: span 2; font-size: 1rem; padding: 12px; }
-
-        /* Preview */
-        #qrcode-container {
-            margin: 20px 0; padding: 20px; border: 2px solid var(--gold);
-            border-radius: 15px; background: white; position: relative;
-            display: flex; justify-content: center; align-items: center;
-            min-height: 300px;
-        }
-        /* Corners decoration */
-        .qr-corner { position: absolute; width: 20px; height: 20px; border: 3px solid var(--emerald); pointer-events: none; z-index: 10; }
-        .qc-tl { top: -2px; left: -2px; border-right: none; border-bottom: none; border-radius: 10px 0 0 0; }
-        .qc-tr { top: -2px; right: -2px; border-left: none; border-bottom: none; border-radius: 0 10px 0 0; }
-        .qc-bl { bottom: -2px; left: -2px; border-right: none; border-top: none; border-radius: 0 0 0 10px; }
-        .qc-br { bottom: -2px; right: -2px; border-left: none; border-top: none; border-radius: 0 0 10px 0; }
-
-        footer {
-            margin-top: auto; padding: 20px; text-align: center; width: 100%;
-            background: #222; color: #888; font-size: 0.9rem; border-top: 4px solid var(--gold);
-        }
-        .dev-tag { color: var(--gold); font-weight: bold; font-family: 'Amiri', serif; font-size: 1.1rem; }
-
-        @media (max-width: 768px) { .main-container { flex-direction: column; } .lantern { width: 40px; } }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QR Code Generator Pro — কিউআর কোড জেনারেটর</title>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
+<style>
+  :root{
+    --bg:#0b3d2e; --bg2:#06231a; --card:#ffffff; --ink:#12312a; --muted:#5b7268;
+    --gold:#c9a227; --gold2:#e6c65a; --emerald:#0e7a5f; --emerald2:#0a5c47;
+    --line:#e3ece8; --soft:#f3f7f5; --danger:#c0392b;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; font-family:"Segoe UI","Hind Siliguri",system-ui,sans-serif; color:var(--ink);
+    background:linear-gradient(160deg,var(--bg) 0%,var(--bg2) 100%); min-height:100vh;
+  }
+  header{
+    text-align:center; padding:34px 16px 10px; color:#f5efdc;
+  }
+  header .logo{
+    width:64px;height:64px;margin:0 auto 10px;border:2px solid var(--gold);border-radius:16px;
+    display:flex;align-items:center;justify-content:center;font-size:34px;color:var(--gold2);
+    background:rgba(255,255,255,.06);
+  }
+  header h1{margin:0;font-size:30px;letter-spacing:.3px}
+  header p{margin:6px 0 0;color:#cfe3d8;font-size:15px}
+  .wrap{max-width:1080px;margin:0 auto;padding:18px 16px 50px;display:grid;grid-template-columns:1.25fr .9fr;gap:20px}
+  @media(max-width:860px){.wrap{grid-template-columns:1fr}}
+  .card{background:var(--card);border-radius:18px;padding:22px;box-shadow:0 14px 34px rgba(0,0,0,.28)}
+  .card h2{margin:0 0 14px;font-size:19px;color:var(--emerald2)}
+  .tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+  .tab{
+    border:1.5px solid var(--line);background:var(--soft);color:var(--ink);padding:8px 14px;border-radius:999px;
+    cursor:pointer;font-size:14.5px;font-weight:600;transition:.15s;
+  }
+  .tab:hover{border-color:var(--gold)}
+  .tab.active{background:var(--emerald);color:#fff;border-color:var(--emerald)}
+  .pane{display:none}
+  .pane.active{display:block}
+  label{display:block;font-size:13.5px;font-weight:600;color:var(--muted);margin:12px 0 5px}
+  input[type=text],input[type=email],input[type=tel],input[type=password],textarea,select{
+    width:100%;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;font-size:15px;
+    font-family:inherit;background:#fff;color:var(--ink);outline:none;
+  }
+  input:focus,textarea:focus,select:focus{border-color:var(--emerald)}
+  textarea{resize:vertical;min-height:74px}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:520px){.row{grid-template-columns:1fr}}
+  .opts{margin-top:20px;border-top:1px dashed var(--line);padding-top:6px}
+  .colorrow{display:flex;gap:14px;flex-wrap:wrap}
+  .colorbox{flex:1;min-width:130px}
+  input[type=color]{width:100%;height:44px;border:1.5px solid var(--line);border-radius:10px;background:#fff;padding:4px;cursor:pointer}
+  input[type=range]{width:100%;accent-color:var(--emerald)}
+  .val{font-weight:700;color:var(--emerald2)}
+  .logorow{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .filebtn{
+    display:inline-block;background:var(--soft);border:1.5px dashed var(--gold);color:var(--ink);
+    padding:9px 14px;border-radius:10px;cursor:pointer;font-size:14px;font-weight:600;
+  }
+  .filebtn input{display:none}
+  .small{font-size:12.5px;color:var(--muted)}
+  .previewbox{text-align:center}
+  .qrframe{
+    display:inline-block;padding:14px;background:#fff;border:1.5px solid var(--line);border-radius:16px;
+    box-shadow:inset 0 0 0 1px #fff, 0 6px 18px rgba(0,0,0,.08);
+  }
+  #qrCanvas{max-width:100%;height:auto;display:block}
+  .empty{color:var(--muted);padding:38px 8px;font-size:15px}
+  .btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+  button.act{
+    border:none;cursor:pointer;padding:12px 20px;border-radius:12px;font-size:15px;font-weight:700;font-family:inherit;transition:.15s;
+  }
+  .btn-dl{background:var(--emerald);color:#fff}
+  .btn-dl:hover{background:var(--emerald2)}
+  .btn-copy{background:#fff;color:var(--emerald2);border:1.5px solid var(--emerald)}
+  .btn-copy:hover{background:var(--soft)}
+  .payload{
+    margin-top:16px;text-align:left;background:var(--soft);border:1px solid var(--line);border-radius:10px;
+    padding:10px 12px;font-size:12.5px;word-break:break-all;color:var(--muted);max-height:110px;overflow:auto;white-space:pre-wrap;
+  }
+  .toast{
+    position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:#12312a;color:#fff;
+    padding:11px 20px;border-radius:999px;font-size:14.5px;opacity:0;pointer-events:none;transition:.25s;z-index:50;
+    box-shadow:0 10px 24px rgba(0,0,0,.35);
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .err{color:var(--danger);font-size:13.5px;margin-top:8px;min-height:18px}
+  footer{text-align:center;color:#9db8ab;font-size:13px;padding:0 16px 30px}
+</style>
 </head>
 <body>
+<header>
+  <div class="logo">ত</div>
+  <h1>QR Code Generator Pro</h1>
+  <p>টেক্সট, WiFi, ফোন, SMS, ইমেইল ও vCard — সব ধরনের QR কোড এক জায়গায়</p>
+</header>
 
-    <div class="lantern-container">
-        <svg class="lantern l-left" viewBox="0 0 512 512" fill="var(--gold)"><path d="M256,0C163.3,0,83.5,58.6,50.1,140.3L28.5,193.9c-6.8,16.8,5.6,35.4,23.7,35.4h407.6c18.1,0,30.5-18.6,23.7-35.4l-21.6-53.6C428.5,58.6,348.7,0,256,0z M256,464c-35.3,0-64,28.7-64,64h128C320,492.7,291.3,464,256,464z M96,256v96c0,53,43,96,96,96h128c53,0,96-43,96-96v-96H96z"/></svg>
-        <svg class="lantern l-right" viewBox="0 0 512 512" fill="var(--gold)"><path d="M256,0C163.3,0,83.5,58.6,50.1,140.3L28.5,193.9c-6.8,16.8,5.6,35.4,23.7,35.4h407.6c18.1,0,30.5-18.6,23.7-35.4l-21.6-53.6C428.5,58.6,348.7,0,256,0z M256,464c-35.3,0-64,28.7-64,64h128C320,492.7,291.3,464,256,464z M96,256v96c0,53,43,96,96,96h128c53,0,96-43,96-96v-96H96z"/></svg>
+<div class="wrap">
+  <!-- বাম: ইনপুট -->
+  <div class="card">
+    <h2>১) তথ্য দিন</h2>
+    <div class="tabs" id="tabs">
+      <button class="tab active" data-type="text">📝 টেক্সট / URL</button>
+      <button class="tab" data-type="wifi">📶 WiFi</button>
+      <button class="tab" data-type="phone">📞 ফোন</button>
+      <button class="tab" data-type="sms">💬 SMS</button>
+      <button class="tab" data-type="email">✉️ ইমেইল</button>
+      <button class="tab" data-type="vcard">👤 vCard</button>
     </div>
 
-    <div class="header">
-        <div class="bismillah">بِسْمِ ٱللَّٰهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>
-        <h1>Islamic QR Studio</h1>
-        <p style="opacity: 0.8; font-size: 0.9rem;">শেপ কন্ট্রোল সহ আলটিমেট জেনারেটর</p>
+    <!-- টেক্সট / URL -->
+    <div class="pane active" id="pane-text">
+      <label>টেক্সট বা ওয়েবসাইটের লিংক</label>
+      <textarea id="inText" placeholder="যেমন: https://example.com অথবা যেকোনো লেখা">https://github.com/Talhahmaknun24</textarea>
     </div>
 
-    <div class="main-container">
-        
-        <div class="panel left-panel">
-            
-            <div class="section-head"><i class="fa-solid fa-star"></i> কুইক টেমপ্লেট</div>
-            <div class="template-grid">
-                <button class="tmpl-btn" onclick="applyTemplate('masjid')"><i class="fa-solid fa-mosque"></i> মসজিদ</button>
-                <button class="tmpl-btn" onclick="applyTemplate('eid')"><i class="fa-solid fa-moon"></i> ঈদ</button>
-                <button class="tmpl-btn" onclick="applyTemplate('wifi')"><i class="fa-solid fa-wifi"></i> ওয়াইফাই</button>
-                <button class="tmpl-btn" onclick="applyTemplate('contact')"><i class="fa-solid fa-user-tie"></i> প্রোফাইল</button>
-            </div>
-
-            <div class="section-head"><i class="fa-solid fa-pen-fancy"></i> তথ্য প্রদান করুন</div>
-            
-            <div class="input-group">
-                <label>আপনার টেক্সট / লিঙ্ক</label>
-                <input type="text" id="text-input" value="https://talhahmaknun.com" placeholder="এখানে লিখুন..." oninput="checkDensity()">
-                <div id="density-warning" class="density-alert">
-                    <i class="fa-solid fa-triangle-exclamation"></i>
-                    <span>সতর্কতা: বেশি লেখা কোডের ঘনত্ব বাড়াবে।</span>
-                </div>
-            </div>
-
-            <div class="input-group">
-                <label>লোগো আপলোড</label>
-                <input type="file" id="logo-input" accept="image/*">
-            </div>
-
-            <div class="section-head"><i class="fa-solid fa-shapes"></i> স্টাইল এবং শেপ</div>
-            <div class="color-grid">
-                <div>
-                    <label>বডি স্টাইল</label>
-                    <select id="dots-style" onchange="generatePreview()">
-                        <option value="square">স্কয়ার (Square)</option>
-                        <option value="dots">বিন্দু (Dots)</option>
-                        <option value="rounded">রাউন্ডেড (Rounded)</option>
-                        <option value="classy">ক্লাসি (Classy)</option>
-                        <option value="classy-rounded">ক্লাসি রাউন্ড</option>
-                    </select>
-                </div>
-                <div>
-                    <label>কর্নার ফ্রেম (Outer)</label>
-                    <select id="corner-square-style" onchange="generatePreview()">
-                        <option value="square">স্কয়ার</option>
-                        <option value="dot">ডট (বৃত্তাকার)</option>
-                        <option value="extra-rounded" selected>এক্সট্রা রাউন্ড</option>
-                    </select>
-                </div>
-                <div>
-                    <label>কর্নার বিন্দু (Inner)</label>
-                    <select id="corner-dot-style" onchange="generatePreview()">
-                        <option value="square">স্কয়ার</option>
-                        <option value="dot" selected>ডট (বৃত্তাকার)</option>
-                    </select>
-                </div>
-                <div>
-                    <label>সাইজ</label>
-                    <input type="number" id="qr-size" value="300" min="200" max="1000">
-                </div>
-            </div>
-
-            <div class="section-head"><i class="fa-solid fa-brush"></i> কালার স্টুডিও</div>
-            
-            <div class="color-grid">
-                <div>
-                    <label>বডি কালার</label>
-                    <div class="color-wrapper"><input type="color" id="color-dark" value="#064e3b"></div>
-                </div>
-                <div>
-                    <label>ব্যাকগ্রাউন্ড</label>
-                    <div class="color-wrapper"><input type="color" id="color-light" value="#ffffff"></div>
-                </div>
-                <div>
-                    <label>কর্নার ফ্রেম রং</label>
-                    <div class="color-wrapper"><input type="color" id="color-eye-outer" value="#d4af37"></div>
-                </div>
-                <div>
-                    <label>কর্নার বিন্দু রং</label>
-                    <div class="color-wrapper"><input type="color" id="color-eye-inner" value="#064e3b"></div>
-                </div>
-            </div>
-
-            <button class="btn-generate" onclick="generatePreview()">জেনারেট প্রিভিউ</button>
+    <!-- WiFi -->
+    <div class="pane" id="pane-wifi">
+      <label>WiFi-এর নাম (SSID)</label>
+      <input type="text" id="wifiSsid" placeholder="MyHomeWiFi">
+      <div class="row">
+        <div>
+          <label>পাসওয়ার্ড</label>
+          <input type="text" id="wifiPass" placeholder="********">
         </div>
-
-        <div class="panel right-panel">
-            <h2 style="color: var(--emerald); margin-top: 0; font-family: 'Amiri', serif;">প্রিভিউ বক্স</h2>
-            
-            <div id="qrcode-container">
-                <div class="qr-corner qc-tl"></div>
-                <div class="qr-corner qc-tr"></div>
-                <div class="qr-corner qc-bl"></div>
-                <div class="qr-corner qc-br"></div>
-            </div>
-
-            <div class="download-group">
-                <button class="btn-dl primary" onclick="downloadQR('png')"><i class="fa-solid fa-image"></i> PNG Download</button>
-                <button class="btn-dl" onclick="downloadQR('jpeg')"><i class="fa-regular fa-image"></i> JPG Download</button>
-                <button class="btn-dl" onclick="downloadQR('svg')"><i class="fa-solid fa-bezier-curve"></i> SVG Download</button>
-                <button class="btn-dl" onclick="downloadPdf()"><i class="fa-solid fa-file-pdf"></i> PDF Download</button>
-            </div>
+        <div>
+          <label>নিরাপত্তার ধরন</label>
+          <select id="wifiSec">
+            <option value="WPA">WPA / WPA2</option>
+            <option value="WEP">WEP</option>
+            <option value="nopass">পাসওয়ার্ড নেই</option>
+          </select>
         </div>
+      </div>
+      <label style="display:flex;gap:8px;align-items:center;font-weight:500;color:var(--ink)">
+        <input type="checkbox" id="wifiHidden" style="width:auto"> লুকানো নেটওয়ার্ক (Hidden SSID)
+      </label>
     </div>
 
-    <footer>
-        <div>&copy; 2026 সমস্ত অধিকার সংরক্ষিত।</div>
-        <div>Developed with <i class="fa-solid fa-heart" style="color: var(--gold);"></i> by <span class="dev-tag">TALHAH MAKNUN</span></div>
-        <div style="font-size: 0.8rem; margin-top: 5px; opacity: 0.6;">md.talhahmaknun24@gmail.com  | Graphics Designer, Cybersecurity & Dev Specialist</div>
-    </footer>
+    <!-- ফোন -->
+    <div class="pane" id="pane-phone">
+      <label>ফোন নম্বর (দেশের কোডসহ)</label>
+      <input type="tel" id="phoneNum" placeholder="+8801XXXXXXXXX">
+    </div>
 
-    <script>
-        let qrCode;
-        let logoData = null;
+    <!-- SMS -->
+    <div class="pane" id="pane-sms">
+      <label>ফোন নম্বর</label>
+      <input type="tel" id="smsNum" placeholder="+8801XXXXXXXXX">
+      <label>মেসেজ</label>
+      <textarea id="smsMsg" placeholder="আপনার মেসেজ লিখুন"></textarea>
+    </div>
 
-        // Initialize
-        window.onload = function() {
-            qrCode = new QRCodeStyling({
-                width: 300,
-                height: 300,
-                type: "svg",
-                data: "https://talhahmaknun.com",
-                image: "",
-                dotsOptions: { color: "#064e3b", type: "rounded" },
-                backgroundOptions: { color: "#ffffff" },
-                imageOptions: { crossOrigin: "anonymous", margin: 10 }
-            });
-            
-            // Initial generation
-            qrCode.append(document.getElementById("qrcode-container"));
-            checkDensity();
-            generatePreview();
-        };
+    <!-- ইমেইল -->
+    <div class="pane" id="pane-email">
+      <label>ইমেইল ঠিকানা</label>
+      <input type="email" id="mailTo" placeholder="name@example.com">
+      <label>বিষয় (Subject)</label>
+      <input type="text" id="mailSub">
+      <label>মেসেজ</label>
+      <textarea id="mailBody"></textarea>
+    </div>
 
-        // Logo Handler
-        document.getElementById('logo-input').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                logoData = event.target.result;
-                generatePreview();
-            };
-            reader.readAsDataURL(file);
-        });
+    <!-- vCard -->
+    <div class="pane" id="pane-vcard">
+      <div class="row">
+        <div><label>নাম *</label><input type="text" id="vcName" placeholder="পুরো নাম"></div>
+        <div><label>প্রতিষ্ঠান</label><input type="text" id="vcOrg" placeholder="কোম্পানি / প্রতিষ্ঠান"></div>
+      </div>
+      <div class="row">
+        <div><label>ফোন</label><input type="tel" id="vcPhone" placeholder="+8801XXXXXXXXX"></div>
+        <div><label>ইমেইল</label><input type="email" id="vcEmail" placeholder="name@example.com"></div>
+      </div>
+      <label>ওয়েবসাইট</label>
+      <input type="text" id="vcUrl" placeholder="https://...">
+      <label>ঠিকানা</label>
+      <input type="text" id="vcAddr" placeholder="বাসা, রোড, এলাকা, শহর">
+    </div>
 
-        function checkDensity() {
-            const text = document.getElementById('text-input').value;
-            const warningBox = document.getElementById('density-warning');
-            if (text.length > 60) {
-                warningBox.style.display = 'flex';
-            } else {
-                warningBox.style.display = 'none';
-            }
-        }
+    <!-- সাজসজ্জা -->
+    <div class="opts">
+      <h2 style="margin-top:8px">২) সাজান</h2>
+      <div class="colorrow">
+        <div class="colorbox">
+          <label>QR-এর রং</label>
+          <input type="color" id="fgColor" value="#0b3d2e">
+        </div>
+        <div class="colorbox">
+          <label>ব্যাকগ্রাউন্ড রং</label>
+          <input type="color" id="bgColor" value="#ffffff">
+        </div>
+      </div>
+      <label>সাইজ: <span class="val" id="sizeVal">512 px</span></label>
+      <input type="range" id="sizeRange" min="256" max="1024" step="64" value="512">
+      <label>Error Correction (ক্ষতি সহনশীলতা)</label>
+      <select id="ecLevel">
+        <option value="L">L — কম (৭%)</option>
+        <option value="M" selected>M — মাঝারি (১৫%)</option>
+        <option value="Q">Q — বেশি (২৫%)</option>
+        <option value="H">H — সর্বোচ্চ (৩০%) — লোগো থাকলে এটাই ভালো</option>
+      </select>
+      <label>মাঝখানে লোগো (ঐচ্ছিক)</label>
+      <div class="logorow">
+        <label class="filebtn">🖼 লোগো ছবি বেছে নিন<input type="file" id="logoFile" accept="image/*"></label>
+        <button class="act btn-copy" id="logoClear" type="button" style="padding:9px 14px;display:none">লোগো সরান</button>
+        <span class="small" id="logoName"></span>
+      </div>
+      <p class="small">লোগো দিলে Error Correction স্বয়ংক্রিয়ভাবে H করার পরামর্শ দেওয়া হয় — নাহলে স্ক্যানে সমস্যা হতে পারে।</p>
+      <div class="err" id="errBox"></div>
+    </div>
+  </div>
 
-        function applyTemplate(type) {
-            const input = document.getElementById('text-input');
-            const cDark = document.getElementById('color-dark');
-            const cOuter = document.getElementById('color-eye-outer');
-            const cInner = document.getElementById('color-eye-inner');
-            const cBodyStyle = document.getElementById('dots-style');
-            const cCornerStyle = document.getElementById('corner-square-style');
+  <!-- ডান: প্রিভিউ -->
+  <div class="card previewbox">
+    <h2 style="text-align:left">৩) প্রিভিউ ও ডাউনলোড</h2>
+    <div class="qrframe">
+      <canvas id="qrCanvas" width="512" height="512"></canvas>
+      <div class="empty" id="emptyMsg" style="display:none">তথ্য দিলেই এখানে QR কোড দেখা যাবে</div>
+    </div>
+    <div class="btns">
+      <button class="act btn-dl" id="btnDownload">⬇ PNG ডাউনলোড</button>
+      <button class="act btn-copy" id="btnCopy">📋 ছবি কপি করুন</button>
+    </div>
+    <div class="payload" id="payloadBox" title="QR-এ যা এনকোড হচ্ছে"></div>
+  </div>
+</div>
 
-            if (type === 'masjid') {
-                input.value = "বিকাশ: 01XXXXXXXXX (মসজিদ ফান্ড)";
-                cDark.value = "#064e3b"; cOuter.value = "#d4af37"; cInner.value = "#064e3b";
-                cCornerStyle.value = "extra-rounded";
-            } else if (type === 'eid') {
-                input.value = "ঈদ মোবারক!";
-                cDark.value = "#7f1d1d"; cOuter.value = "#d4af37"; cInner.value = "#7f1d1d";
-                cCornerStyle.value = "dot";
-            } else if (type === 'wifi') {
-                input.value = "WIFI:S:MyNetwork;T:WPA;P:12345678;;";
-                cDark.value = "#1e3a8a"; cOuter.value = "#1e3a8a"; cInner.value = "#1e40af";
-                cCornerStyle.value = "square";
-            } else if (type === 'contact') {
-                input.value = "MECARD:N:Talhah Maknun;TEL:01XXXXXXXXX;;";
-                cDark.value = "#111827"; cOuter.value = "#000000"; cInner.value = "#111827";
-                cCornerStyle.value = "extra-rounded";
-            }
-            generatePreview();
-        }
+<footer>তামাদ্দুন টুলস • সম্পূর্ণ ফ্রি — সব কাজ আপনার ব্রাউজারেই হয়, কোনো তথ্য সার্ভারে যায় না</footer>
+<div class="toast" id="toast"></div>
 
-        function generatePreview() {
-            const text = document.getElementById('text-input').value || "Talhah Maknun";
-            const size = parseInt(document.getElementById('qr-size').value);
-            
-            // Styles
-            const dotStyle = document.getElementById('dots-style').value;
-            const cornerSquareStyle = document.getElementById('corner-square-style').value;
-            const cornerDotStyle = document.getElementById('corner-dot-style').value;
+<script>
+(function(){
+  "use strict";
+  var currentType = "text";
+  var logoImg = null;
 
-            // Colors
-            const colorDark = document.getElementById('color-dark').value;
-            const colorLight = document.getElementById('color-light').value;
-            const colorOuter = document.getElementById('color-eye-outer').value;
-            const colorInner = document.getElementById('color-eye-inner').value;
+  var $ = function(id){ return document.getElementById(id); };
+  var canvas = $("qrCanvas");
 
-            qrCode.update({
-                width: size,
-                height: size,
-                data: text,
-                image: logoData,
-                dotsOptions: {
-                    color: colorDark,
-                    type: dotStyle
-                },
-                backgroundOptions: {
-                    color: colorLight,
-                },
-                cornersSquareOptions: {
-                    color: colorOuter,
-                    type: cornerSquareStyle
-                },
-                cornersDotOptions: {
-                    color: colorInner,
-                    type: cornerDotStyle
-                }
-            });
-        }
+  function toast(msg){
+    var t = $("toast"); t.textContent = msg; t.classList.add("show");
+    setTimeout(function(){ t.classList.remove("show"); }, 2200);
+  }
 
-        function downloadQR(format) {
-            const fileName = "islamic_qr_" + Date.now();
-            qrCode.download({ name: fileName, extension: format });
-        }
+  // ---------- পেলোড তৈরি ----------
+  function escWifi(s){ return String(s||"").replace(/([\\;,:"'])/g, "\\$1"); }
+  function escVcard(s){ return String(s||"").replace(/\\/g,"\\\\").replace(/\n/g,"\\n").replace(/,/g,"\\,").replace(/;/g,"\\;"); }
 
-        function downloadPdf() {
-            // Get the raw canvas data from the library logic manually or convert SVG
-            // For simplicity, we trigger a download of PNG then stick it in PDF using jsPDF
-            qrCode.getRawData("png").then((buffer) => {
-                const blob = new Blob([buffer], { type: "image/png" });
-                const url = URL.createObjectURL(blob);
-                
-                const img = new Image();
-                img.src = url;
-                img.onload = function() {
-                    const { jsPDF } = window.jspdf;
-                    const doc = new jsPDF();
-                    
-                    doc.setFont("helvetica", "bold"); doc.setFontSize(22); doc.setTextColor(6, 78, 59);
-                    doc.text("Islamic QR Code", 105, 20, null, null, "center");
-                    
-                    doc.setFontSize(10); doc.setTextColor(100);
-                    doc.text("Generated by Talhah Maknun Studio", 105, 28, null, null, "center");
-                    
-                    doc.addImage(img, 'PNG', 55, 40, 100, 100);
-                    
-                    const text = document.getElementById('text-input').value;
-                    doc.setFontSize(12); doc.setTextColor(0);
-                    doc.text(`Content: ${text.substring(0,30)}...`, 105, 155, null, null, "center");
-                    
-                    doc.save("islamic_qr_code.pdf");
-                }
-            });
-        }
-    </script>
+  function buildPayload(){
+    switch(currentType){
+      case "text":
+        return $("inText").value.trim();
+      case "wifi": {
+        var ssid = $("wifiSsid").value;
+        if(!ssid) return "";
+        var sec = $("wifiSec").value;
+        var p = "WIFI:T:" + sec + ";S:" + escWifi(ssid) + ";";
+        if(sec !== "nopass") p += "P:" + escWifi($("wifiPass").value) + ";";
+        if($("wifiHidden").checked) p += "H:true;";
+        return p + ";";
+      }
+      case "phone": {
+        var n = $("phoneNum").value.trim();
+        return n ? "tel:" + n.replace(/\s+/g,"") : "";
+      }
+      case "sms": {
+        var num = $("smsNum").value.trim();
+        if(!num) return "";
+        var msg = $("smsMsg").value;
+        return "SMSTO:" + num.replace(/\s+/g,"") + (msg ? ":" + msg : "");
+      }
+      case "email": {
+        var to = $("mailTo").value.trim();
+        if(!to) return "";
+        var q = [];
+        if($("mailSub").value) q.push("subject=" + encodeURIComponent($("mailSub").value));
+        if($("mailBody").value) q.push("body=" + encodeURIComponent($("mailBody").value));
+        return "mailto:" + to + (q.length ? "?" + q.join("&") : "");
+      }
+      case "vcard": {
+        var name = $("vcName").value.trim();
+        if(!name) return "";
+        var lines = ["BEGIN:VCARD","VERSION:3.0","FN:" + escVcard(name),"N:" + escVcard(name) + ";;;;"];
+        if($("vcOrg").value.trim())   lines.push("ORG:" + escVcard($("vcOrg").value.trim()));
+        if($("vcPhone").value.trim()) lines.push("TEL;TYPE=CELL:" + $("vcPhone").value.trim());
+        if($("vcEmail").value.trim()) lines.push("EMAIL:" + $("vcEmail").value.trim());
+        if($("vcUrl").value.trim())   lines.push("URL:" + $("vcUrl").value.trim());
+        if($("vcAddr").value.trim())  lines.push("ADR:;;" + escVcard($("vcAddr").value.trim()) + ";;;;");
+        lines.push("END:VCARD");
+        return lines.join("\n");
+      }
+    }
+    return "";
+  }
+
+  // ---------- QR আঁকা ----------
+  function render(){
+    var payload = buildPayload();
+    $("payloadBox").textContent = payload ? ("এনকোড হচ্ছে:\n" + payload) : "";
+    $("errBox").textContent = "";
+    if(!payload){
+      canvas.style.display = "none";
+      $("emptyMsg").style.display = "block";
+      return;
+    }
+    var size = parseInt($("sizeRange").value, 10);
+    $("sizeVal").textContent = size + " px";
+    var opts = {
+      width: size,
+      margin: 2,
+      errorCorrectionLevel: $("ecLevel").value,
+      color: { dark: $("fgColor").value, light: $("bgColor").value }
+    };
+    QRCode.toCanvas(canvas, payload, opts, function(err){
+      if(err){
+        canvas.style.display = "none";
+        $("emptyMsg").style.display = "block";
+        $("errBox").textContent = "⚠ তথ্য অনেক বড় হয়ে গেছে — লেখা ছোট করুন অথবা Error Correction কমিয়ে L/M করুন।";
+        return;
+      }
+      canvas.style.display = "block";
+      $("emptyMsg").style.display = "none";
+      if(logoImg) drawLogo(size);
+    });
+  }
+
+  function drawLogo(size){
+    var ctx = canvas.getContext("2d");
+    var logoSize = Math.floor(size * 0.22);
+    var x = (size - logoSize) / 2, y = (size - logoSize) / 2;
+    var pad = Math.floor(size * 0.025);
+    // সাদা গোল-কোণা প্যাডিং বক্স
+    ctx.save();
+    ctx.fillStyle = "#ffffff";
+    var r = Math.floor(logoSize * 0.18);
+    roundRect(ctx, x - pad, y - pad, logoSize + pad*2, logoSize + pad*2, r + pad);
+    ctx.fill();
+    // ছবি ক্লিপ করে আঁকা
+    ctx.beginPath();
+    roundRect(ctx, x, y, logoSize, logoSize, r);
+    ctx.clip();
+    ctx.drawImage(logoImg, x, y, logoSize, logoSize);
+    ctx.restore();
+  }
+  function roundRect(ctx, x, y, w, h, r){
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+
+  // ---------- ট্যাব ----------
+  $("tabs").addEventListener("click", function(e){
+    var btn = e.target.closest(".tab");
+    if(!btn) return;
+    document.querySelectorAll(".tab").forEach(function(t){ t.classList.remove("active"); });
+    document.querySelectorAll(".pane").forEach(function(p){ p.classList.remove("active"); });
+    btn.classList.add("active");
+    currentType = btn.getAttribute("data-type");
+    $("pane-" + currentType).classList.add("active");
+    render();
+  });
+
+  // ---------- লাইভ আপডেট ----------
+  document.querySelectorAll("input, textarea, select").forEach(function(el){
+    el.addEventListener("input", render);
+    el.addEventListener("change", render);
+  });
+
+  // ---------- লোগো ----------
+  $("logoFile").addEventListener("change", function(){
+    var f = this.files && this.files[0];
+    if(!f) return;
+    var img = new Image();
+    img.onload = function(){
+      logoImg = img;
+      $("logoName").textContent = f.name;
+      $("logoClear").style.display = "inline-block";
+      if($("ecLevel").value !== "H"){
+        $("ecLevel").value = "H";
+        toast("লোগোর জন্য Error Correction H করা হলো");
+      }
+      render();
+    };
+    img.src = URL.createObjectURL(f);
+  });
+  $("logoClear").addEventListener("click", function(){
+    logoImg = null;
+    $("logoFile").value = "";
+    $("logoName").textContent = "";
+    this.style.display = "none";
+    render();
+  });
+
+  // ---------- ডাউনলোড / কপি ----------
+  $("btnDownload").addEventListener("click", function(){
+    if(canvas.style.display === "none"){ toast("আগে তথ্য দিন"); return; }
+    var a = document.createElement("a");
+    a.download = "qrcode-" + currentType + ".png";
+    a.href = canvas.toDataURL("image/png");
+    a.click();
+    toast("PNG ডাউনলোড হচ্ছে ✅");
+  });
+
+  $("btnCopy").addEventListener("click", function(){
+    if(canvas.style.display === "none"){ toast("আগে তথ্য দিন"); return; }
+    if(!navigator.clipboard || !window.ClipboardItem){
+      toast("এই ব্রাউজারে ছবি কপি সাপোর্ট নেই — ডাউনলোড করুন");
+      return;
+    }
+    canvas.toBlob(function(blob){
+      if(!blob){ toast("কপি ব্যর্থ হয়েছে"); return; }
+      var item = {};
+      item[blob.type] = blob;
+      navigator.clipboard.write([new ClipboardItem(item)]).then(function(){
+        toast("ছবি কপি হয়েছে ✅ — যেকোনো জায়গায় পেস্ট করুন");
+      }).catch(function(){
+        toast("কপি ব্যর্থ — ডাউনলোড বাটন ব্যবহার করুন");
+      });
+    }, "image/png");
+  });
+
+  render();
+})();
+</script>
 </body>
 </html>
